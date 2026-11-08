@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cam</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cam">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#ffc6d9;--pink2:#f48fb1;--olive:#c9cf6a;--olive2:#e6e99c;--ink:#4a3b3f;--cream:#fbf3e4;--grey:#3a3a3a;--mauve:#756a6c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cream:#fbf3e4}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:'Comfortaa',system-ui,sans-serif;color:var(--ink);overflow:hidden;
+ background-color:#fbf3e4;
+ background-image:linear-gradient(45deg,#f1edb0 25%,transparent 25%,transparent 75%,#f1edb0 75%),linear-gradient(45deg,#f1edb0 25%,transparent 25%,transparent 75%,#f1edb0 75%);
+ background-size:64px 64px;background-position:0 0,32px 32px}
+body{padding:8px}
+button{font-family:inherit;color:inherit;cursor:pointer}
+#win{height:100%;display:flex;flex-direction:column;border-radius:22px;border:3px solid #2e2e2e;overflow:hidden;background:var(--cream)}
+#title{background:repeating-linear-gradient(135deg,#3a3a3a 0 6px,#444 6px 12px);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:7px 14px;font-size:13px}
+#title b{font-weight:400}
+.blob{display:inline-block;width:22px;height:22px;border-radius:50%;background:#f2ee8a;vertical-align:middle;margin-right:8px}
+#head{background:var(--pink) radial-gradient(#fff8 2px,transparent 2.5px) 0 0/16px 16px;border-bottom:3px dashed #e86f9a;padding:10px;display:flex;gap:10px;align-items:center}
+#ava{width:62px;height:62px;flex:none;border-radius:14px;border:3px solid var(--ink);background:#f6f0a8;display:flex;align-items:center;justify-content:center;font-size:32px}
+#hr{flex:1;min-width:0}
+#bubble{border:2px solid var(--ink);border-radius:18px;background:#fff0f5;padding:6px 12px;font-family:'Gaegu',cursive;font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nav{display:flex;gap:8px;margin-top:8px}
+.pill{flex:1;border:2px dashed #c0516f;border-radius:999px;background:#fff0f6;font-family:'Gaegu',cursive;font-size:19px;padding:3px 0}
+.pill.on{background:var(--olive);border-color:#6f7420}
+#main{flex:1;min-height:0;padding:10px;background:repeating-linear-gradient(135deg,#f3e8d6 0 6px,#f8f0e2 6px 12px);display:flex}
+.view{flex:1;min-height:0;display:none;flex-direction:column;background:#fff;border-radius:18px;border:2px solid #fff;box-shadow:0 0 0 2px #e4d8c4;overflow:hidden}
+.view.on{display:flex}
+.banner{background:var(--mauve) radial-gradient(#fff3 1.5px,transparent 2px) 0 0/10px 10px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px dotted #3b3235}
+.banner span{background:#fff0f6;border:2px solid var(--ink);border-radius:999px;padding:1px 14px;font-family:'Gaegu',cursive;font-size:18px}
+.banner button{background:var(--olive2);border:2px solid #6f7420;border-radius:999px;font-size:11px;padding:3px 10px}
+.banner button.off{background:#eee;border-color:#999;color:#888}
+#stage{flex:1;min-height:0;position:relative;margin:8px;border-radius:14px;border:2.5px dashed var(--ink);overflow:hidden;background:#222}
+video{width:100%;height:100%;object-fit:cover}
+video.front{transform:scaleX(-1)}
+video.fx{filter:brightness(1.18) contrast(1.1) saturate(1.45) sepia(.1) hue-rotate(-4deg)}
+#glow{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:.0;background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.38),rgba(255,240,220,.12) 55%,transparent 75%)}
+#glow.on{opacity:1}
+#msg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:20px;line-height:1.6;background:#fff0f5;font-size:13px}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .3s}
+#grid{flex:1;overflow:auto;padding:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-content:start}
+#grid img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;border:2px solid var(--ink)}
+#empty{padding:30px;text-align:center;font-family:'Gaegu',cursive;font-size:20px}
+#bar{background:repeating-linear-gradient(90deg,#c9cf6a 0 26px,#e1e48f 26px 52px);border-top:3px dashed #8a9030;display:flex;align-items:center;justify-content:space-around;padding:10px 12px}
+.sq{width:54px;height:54px;border-radius:14px;border:2.5px solid #6a6a50;background:var(--pink);font-size:24px;padding:0;background-size:cover;background-position:center}
+#shutter{width:78px;height:78px;border-radius:50%;border:4px solid var(--ink);background:var(--pink2);padding:0;font-size:30px;color:#fff;box-shadow:0 0 0 4px #fff8,inset 0 0 0 4px #ffd6e4}
+#shutter:active{transform:scale(.92)}
+#foot{background:#333;color:#999;text-align:center;font-size:11px;padding:5px}
+</style>
+</head>
+<body>
+<div id="win">
+  <div id="title"><b><span class="blob"></span>by cam.app (ᵔᴥᵔ)</b><b id="clock"></b></div>
+  <div id="head">
+    <div id="ava">🌼</div>
+    <div id="hr">
+      <div id="bubble">(ᵔ◡ᵔ)ノ welcome to my cam!</div>
+      <div id="nav"><button class="pill on" id="tCam">camera</button><button class="pill" id="tGal">gallery</button></div>
+    </div>
+  </div>
+  <div id="main">
+    <div class="view on" id="camView">
+      <div class="banner"><span>= camera =</span><button id="fxBtn">✧ glow on</button></div>
+      <div id="stage">
+        <video id="v" class="fx" autoplay playsinline muted></video>
+        <div id="glow" class="on"></div>
+        <div id="msg"></div>
+        <div id="flash"></div>
+      </div>
+    </div>
+    <div class="view" id="galView">
+      <div class="banner"><span>= gallery =</span></div>
+      <div id="grid"></div>
+    </div>
+  </div>
+  <div id="bar">
+    <button class="sq" id="thumb" aria-label="Gallery"></button>
+    <button id="shutter" aria-label="Take photo">✿</button>
+    <button class="sq" id="flip" aria-label="Switch camera">⟳</button>
+  </div>
+  <div id="foot">( made with love )</div>
+<input type="file" id="pick" accept="image/*" capture="environment" hidden>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const v=$('v'),msg=$('msg');
+let stream=null,facing='environment',fx=true,shots=[];
+
+setInterval(tick,10000);tick();
+function tick(){const d=new Date();let h=d.getHours(),m=d.getMinutes();const ap=h>=12?'pm':'am';h=h%12||12;$('clock').textContent=h+':'+String(m).padStart(2,'0')+' '+ap}
+
+function show(w){
+  $('camView').classList.toggle('on',w==='cam');$('galView').classList.toggle('on',w==='gal');
+  $('tCam').classList.toggle('on',w==='cam');$('tGal').classList.toggle('on',w==='gal');
+}
+$('tCam').onclick=()=>show('cam');$('tGal').onclick=()=>show('gal');$('thumb').onclick=()=>show('gal');
+
+$('fxBtn').onclick=()=>{
+  fx=!fx;v.classList.toggle('fx',fx);$('glow').classList.toggle('on',fx);
+  $('fxBtn').textContent=fx?'✧ glow on':'✧ glow off';$('fxBtn').classList.toggle('off',!fx);
+};
+
+async function start(){
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  msg.style.display='none';
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1440}},audio:false});
+    v.srcObject=stream;v.classList.toggle('front',facing==='user');
+  }catch(e){
+    msg.style.display='flex';
+    msg.textContent='(｡•́︿•̀｡) live preview is blocked here, but tap the shutter ✿ to open your phone’s camera instead.';
+  }
+}
+$('flip').onclick=()=>{facing=facing==='user'?'environment':'user';start()};
+
+// the "flash in the dark" edit: hot centre light, lifted highlights, vivid colour, teal shadows, bloom
+function grade(c){
+  const w=c.width,h=c.height,x=c.getContext('2d');
+  const img=x.getImageData(0,0,w,h),d=img.data;
+  const cx=w/2,cy=h*.42,md=Math.hypot(cx,h*.58);
+  for(let i=0,p=0;i<d.length;i+=4,p++){
+    const px=p%w,py=(p/w)|0;
+    const r0=Math.hypot(px-cx,py-cy)/md;
+    const g=1.12+.5*Math.max(0,1-r0*1.25);
+    let r=d[i]*g*1.05,gr=d[i+1]*g,b=d[i+2]*g*.97;
+    r=((r/255-.5)*1.15+.5)*255;gr=((gr/255-.5)*1.15+.5)*255;b=((b/255-.5)*1.15+.5)*255;
+    const l=.299*r+.587*gr+.114*b;
+    r=l+(r-l)*1.4;gr=l+(gr-l)*1.4;b=l+(b-l)*1.4;
+    if(l<90){const k=(90-l)/90;b+=14*k;gr+=6*k;r-=6*k}
+    d[i]=r<0?0:r>255?255:r;d[i+1]=gr<0?0:gr>255?255:gr;d[i+2]=b<0?0:b>255?255:b;
+  }
+  x.putImageData(img,0,0);
+  [[8,.32],[22,.28]].forEach(([f,a])=>{
+    const s=document.createElement('canvas');s.width=Math.max(8,w/f|0);s.height=Math.max(8,h/f|0);
+    const sx=s.getContext('2d');sx.imageSmoothingQuality='high';sx.drawImage(c,0,0,s.width,s.height);
+    x.save();x.globalCompositeOperation='screen';x.globalAlpha=a;x.imageSmoothingQuality='high';x.drawImage(s,0,0,w,h);x.restore();
+  });
+  const gl=x.createRadialGradient(w*.15,h*.05,0,w*.15,h*.05,w*.8);
+  gl.addColorStop(0,'rgba(255,245,225,.35)');gl.addColorStop(1,'rgba(255,245,225,0)');
+  x.save();x.globalCompositeOperation='screen';x.fillStyle=gl;x.fillRect(0,0,w,h);x.restore();
+}
+
+$('shutter').onclick=()=>{
+  if(!v.videoWidth){$('pick').click();return}
+  const sc=Math.min(1,1600/v.videoWidth);
+  const c=document.createElement('canvas');c.width=v.videoWidth*sc|0;c.height=v.videoHeight*sc|0;
+  const x=c.getContext('2d');
+  if(facing==='user'){x.translate(c.width,0);x.scale(-1,1)}
+  x.drawImage(v,0,0,c.width,c.height);
+  if(fx)grade(c);
+  $('flash').style.opacity=.9;setTimeout(()=>$('flash').style.opacity=0,130);
+  c.toBlob(b=>{
+    const url=URL.createObjectURL(b);shots.unshift({b,url});
+    $('thumb').style.backgroundImage='url('+url+')';$('thumb').textContent='';renderGrid();
+  },'image/jpeg',.93);
+};
+
+function renderGrid(){
+  const g=$('grid');g.innerHTML='';
+  if(!shots.length){g.style.display='block';g.innerHTML='<div id="empty">no photos yet (・ω・)</div>';return}
+  g.style.display='grid';
+  shots.forEach(s=>{const i=new Image();i.src=s.url;i.onclick=()=>save(s.b);g.appendChild(i)});
+}
+async function save(b){
+  const f=new File([b],'photo-'+Date.now()+'.jpg',{type:'image/jpeg'});
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click();
+}
+$('pick').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  const bm=await createImageBitmap(f,{imageOrientation:'from-image'});
+  const sc=Math.min(1,1600/Math.max(bm.width,bm.height));
+  const c=document.createElement('canvas');c.width=bm.width*sc|0;c.height=bm.height*sc|0;
+  c.getContext('2d').drawImage(bm,0,0,c.width,c.height);
+  if(fx)grade(c);
+  c.toBlob(b=>{const url=URL.createObjectURL(b);shots.unshift({b,url});$('thumb').style.backgroundImage='url('+url+')';$('thumb').textContent='';renderGrid();show('gal')},'image/jpeg',.93);
+  e.target.value='';
+};
+renderGrid();$('thumb').textContent='✿';
+start();
+</script>
+</body>
+</html>
